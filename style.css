@@ -14,7 +14,7 @@ body, html {
 }
 
 .filter-panel {
-    width: 280px;
+    width: 300px;
     background-color: #ffffff;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
@@ -31,15 +31,22 @@ body, html {
 
 .filter-group {
     margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid;
+    padding: 15px;
+    border-width: 2px;
+    border-style: solid;
     border-radius: 8px;
+    transition: box-shadow 0.2s;
 }
 
-.filter-group label {
+.filter-group:hover {
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+.filter-group > label {
     font-weight: bold;
     display: block;
     margin-bottom: 10px;
+    font-size: 1.1em;
 }
 
 .options {
@@ -53,6 +60,12 @@ body, html {
     cursor: pointer;
     display: flex;
     align-items: center;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.options label:hover {
+    background-color: #f4f4f4;
 }
 
 .options input {
@@ -84,5 +97,9 @@ body, html {
     fill: #000;
     font-weight: bold;
     text-anchor: middle;
-    transform: translateY(-16px);
+    paint-order: stroke;
+    stroke: #fff;
+    stroke-width: 3px;
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
 }
