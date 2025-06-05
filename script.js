@@ -19,15 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 15, nombre: 'Raquel D.', especie: ['Avícola'], dispositivo: ['Drones', 'Sensores acústicos'], estudio: ['Manejo'], proyecto: ['Project4'], status: 'IP', institucion: 'UAB' }
     ];
 
-    const categoryMap = {
-        'especie': 'Especie', 'dispositivo': 'Dispositivo', 'estudio': 'Estudio',
-        'proyecto': 'Proyecto', 'status': 'Status', 'institucion': 'Institución'
-    };
-
     const colors = {
         'IP': '#d62728', 'Postdoc': '#ff7f0e', 'Predoc': '#2ca02c', 'Técnico': '#1f77b4'
     };
-    
     const institutionColors = d3.scaleOrdinal(d3.schemeCategory10);
 
     // --- CONFIGURACIÓN DE D3.js ---
@@ -36,11 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const height = svg.node().getBoundingClientRect().height;
     
     const simulation = d3.forceSimulation()
-        .force("link", d3.forceLink().id(d => d.id).distance(100))
-        .force("charge", d3.forceManyBody().strength(-300))
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("x", d3.forceX(width / 2).strength(0.1))
-        .force("y", d3.forceY(height / 2).strength(0.1));
+        .force("link", d3.forceLink().id(d => d.id))
+        .force("charge", d3.forceManyBody().strength(-400))
+        .force("center", d3.forceCenter(width / 2, height / 2));
 
     let link = svg.append("g").attr("class", "links").selectAll("line");
     let node = svg.append("g").attr("class", "nodes").selectAll("g.node");
@@ -56,71 +48,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateGraph() {
         const filters = getSelectedFilters();
-        
         const noFiltersApplied = Object.values(filters).every(arr => arr.length === 0);
 
-        let filteredPeople;
-
-        if (noFiltersApplied) {
-            filteredPeople = allPeople;
-        } else {
-            filteredPeople = allPeople.filter(person => {
-                return Object.entries(filters).some(([category, values]) => {
-                    if (values.length === 0) return false;
-                    if (Array.isArray(person[category])) {
-                        return person[category].some(item => values.includes(item));
-                    }
-                    return values.includes(person[category]);
-                });
+        let filteredPeople = noFiltersApplied ? allPeople : allPeople.filter(person => {
+            return Object.entries(filters).some(([category, values]) => {
+                if (values.length === 0) return false;
+                const personValues = Array.isArray(person[category]) ? person[category] : [person[category]];
+                return personValues.some(item => values.includes(item));
             });
-        }
+        });
         
-        const nodes = filteredPeople.map(p => ({...p})); // Clonar para no modificar original
+        const nodes = filteredPeople.map(p => ({...p}));
         
-        // Crear enlaces si comparten CUALQUIER COSA
         const links = [];
-        for (let i = 0; i < nodes.length; i++) {
-            for (let j = i + 1; j < nodes.length; j++) {
-                const p1 = nodes[i];
-                const p2 = nodes[j];
-                let shared = false;
-                for (const cat of Object.keys(categoryMap)) {
-                    const v1 = Array.isArray(p1[cat]) ? p1[cat] : [p1[cat]];
-                    const v2 = Array.isArray(p2[cat]) ? p2[cat] : [p2[cat]];
-                    if (v1.some(item => v2.includes(item))) {
-                        shared = true;
-                        break;
+        if (nodes.length > 1) {
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const p1 = nodes[i];
+                    const p2 = nodes[j];
+                    const commonFields = Object.keys(p1).filter(key => key !== 'id' && key !== 'nombre').filter(key => {
+                        const v1 = Array.isArray(p1[key]) ? p1[key] : [p1[key]];
+                        const v2 = Array.isArray(p2[key]) ? p2[key] : [p2[key]];
+                        return v1.some(item => v2.includes(item));
+                    });
+                    if (commonFields.length > 0) {
+                        links.push({ source: p1.id, target: p2.id, weight: commonFields.length });
                     }
-                }
-                if (shared) {
-                    links.push({ source: p1.id, target: p2.id });
                 }
             }
         }
         
-        // --- Lógica de Nodos Satélite ---
         const institutionGroups = d3.group(nodes, d => d.institucion);
-        institutionGroups.forEach(group => {
+        simulation.force("link").links(links).distance(d => 150 - d.weight * 15);
+        
+        // --- Lógica de Nodos Satélite ---
+        institutionGroups.forEach((group, inst) => {
             const ips = group.filter(p => p.status === 'IP');
-            const others = group.filter(p => p.status !== 'IP');
-            if (ips.length > 0 && others.length > 0) {
-                others.forEach(other => {
-                    // Conectar cada "otro" al primer IP del grupo para el efecto satélite
-                    links.push({ source: other.id, target: ips[0].id, isSatellite: true });
+            if (ips.length > 0) {
+                const ipCenter = { x: 0, y: 0 };
+                ips.forEach(ip => { ipCenter.x += ip.x || (width/2); ipCenter.y += ip.y || (height/2); });
+                ipCenter.x /= ips.length;
+                ipCenter.y /= ips.length;
+
+                group.forEach(person => {
+                    if (person.status !== 'IP') {
+                        const ipToLink = ips[0]; // Link to the first IP for force
+                        links.push({source: person.id, target: ipToLink.id, isSatellite: true});
+                    }
                 });
             }
         });
-        
-        // Actualizar la simulación con los nuevos datos
-        simulation.nodes(nodes).on("tick", ticked);
-        simulation.force("link").links(links).distance(d => d.isSatellite ? 60 : 120);
 
-        link = link.data(links, d => `${d.source.id}-${d.target.id}`);
+        simulation.nodes(nodes).on("tick", ticked);
+
+        link = link.data(links, d => `${d.source.id || d.source}-${d.target.id || d.target}`);
         link.exit().remove();
         link = link.enter().append("line")
-            .attr("stroke-width", d => d.isSatellite ? 1 : 2)
-            .attr("stroke", d => d.isSatellite ? "#ccc" : "#999")
-            .attr("stroke-opacity", 0.6)
+            .attr("stroke-width", d => d.isSatellite ? 1 : 1 + d.weight)
+            .attr("stroke", d => d.isSatellite ? "#ddd" : "#999")
+            .attr("stroke-opacity", 0.7)
             .merge(link);
 
         node = node.data(nodes, d => d.id);
@@ -134,10 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
             .attr("stroke", d => institutionColors(d.institucion))
             .attr("stroke-width", 3);
 
-        nodeEnter.append("text").text(d => d.nombre);
+        nodeEnter.append("text")
+            .attr("dy", d => (d.status !== 'IP' && institutionGroups.get(d.institucion)?.some(p => p.status === 'IP')) ? "-16px" : "-22px")
+            .text(d => d.nombre);
         
         node = nodeEnter.merge(node);
         node.select('circle')
+             .transition().duration(200)
              .attr("r", d => (d.status !== 'IP' && institutionGroups.get(d.institucion)?.some(p => p.status === 'IP')) ? 12 : 18)
              .attr("fill", d => colors[d.status] || '#ccc');
 
@@ -150,33 +139,19 @@ document.addEventListener('DOMContentLoaded', () => {
             .attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
-        node
-            .attr("transform", d => `translate(${d.x},${d.y})`);
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
     }
 
     function drag(simulation) {
-        function dragstarted(event, d) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-        }
-        function dragged(event, d) {
-            d.fx = event.x;
-            d.fy = event.y;
-        }
-        function dragended(event, d) {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-        }
+        function dragstarted(event, d) { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }
+        function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+        function dragended(event, d) { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }
         return d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended);
     }
 
-    // Event Listeners para los checkboxes
     document.querySelectorAll('.filter-panel input[type="checkbox"]').forEach(checkbox => {
         checkbox.addEventListener('change', updateGraph);
     });
 
-    // Carga inicial
-    updateGraph();
+    updateGraph(); // Carga inicial de la visualización
 });
