@@ -80,7 +80,6 @@ body, html {
 #group-status { border-color: #9C27B0; } /* Morado */
 #group-institucion { border-color: #FF5722; } /* Naranja */
 
-
 .visualization-panel {
     flex-grow: 1;
     position: relative;
@@ -89,6 +88,11 @@ body, html {
 #network-graph {
     width: 100%;
     height: 100%;
+    cursor: grab;
+}
+
+.node {
+    cursor: pointer;
 }
 
 .node text {
@@ -102,4 +106,76 @@ body, html {
     stroke-width: 3px;
     stroke-linecap: butt;
     stroke-linejoin: miter;
+}
+
+/* --- ESTILOS PARA EL RECUADRO DE DETALLES --- */
+#detail-box {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 280px;
+    max-height: calc(100% - 40px);
+    background-color: rgba(255, 255, 255, 0.98);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    padding: 20px;
+    z-index: 100;
+    overflow-y: auto;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none; /* Oculto por defecto */
+}
+
+#detail-box.visible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto; /* Se puede interactuar cuando es visible */
+}
+
+#close-detail-box {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: #888;
+}
+#close-detail-box:hover {
+    color: #000;
+}
+
+#detail-box h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+#detail-content h4 {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 1em;
+    color: #555;
+}
+
+#detail-content ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+#detail-content li {
+    background-color: #e9eef6;
+    color: #334;
+    padding: 5px 10px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 0.9em;
 }
