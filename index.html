@@ -3,95 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red de Colaboradores</title>
+    <title>Buscador de Personas</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <div class="filter-panel">
-            <h2>Filtros</h2>
-            
-            <div class="filter-group" id="group-especie">
-                <label>Especie</label>
-                <div class="options">
-                    <label><input type="checkbox" name="especie" value="Ovina"> Ovina</label>
-                    <label><input type="checkbox" name="especie" value="Caprina"> Caprina</label>
-                    <label><input type="checkbox" name="especie" value="Vacuna"> Vacuna</label>
-                    <label><input type="checkbox" name="especie" value="Porcina"> Porcina</label>
-                    <label><input type="checkbox" name="especie" value="Avícola"> Avícola</label>
-                    <label><input type="checkbox" name="especie" value="Cunícula"> Cunícula</label>
+        <aside class="sidebar">
+            <div class="filter-group" style="border-color: #FF6347;"> <h3>Especie</h3>
+                <div class="dropdown-content" id="especie-dropdown">
+                    <label><input type="checkbox" value="Ovina"> Ovina</label>
+                    <label><input type="checkbox" value="Caprina"> Caprina</label>
+                    <label><input type="checkbox" value="Vacuna"> Vacuna</label>
+                    <label><input type="checkbox" value="Porcina"> Porcina</label>
+                    <label><input type="checkbox" value="Avícola"> Avícola</label>
+                    <label><input type="checkbox" value="Cunícula"> Cunícula</label>
                 </div>
             </div>
 
-            <div class="filter-group" id="group-dispositivo">
-                <label>Dispositivo</label>
-                <div class="options">
-                    <label><input type="checkbox" name="dispositivo" value="Drones"> Drones</label>
-                    <label><input type="checkbox" name="dispositivo" value="RFID"> RFID</label>
-                    <label><input type="checkbox" name="dispositivo" value="Collares"> Collares</label>
-                    <label><input type="checkbox" name="dispositivo" value="Cámaras de visión"> Cámaras de visión</label>
-                    <label><input type="checkbox" name="dispositivo" value="IA"> IA</label>
-                    <label><input type="checkbox" name="dispositivo" value="Alimentadores automáticos"> Alimentadores automáticos</label>
-                    <label><input type="checkbox" name="dispositivo" value="Básculas"> Básculas</label>
-                    <label><input type="checkbox" name="dispositivo" value="Sensores acústicos"> Sensores acústicos</label>
-                    <label><input type="checkbox" name="dispositivo" value="Sensores de movimiento"> Sensores de movimiento</label>
-                    <label><input type="checkbox" name="dispositivo" value="Vallados virtuales"> Vallados virtuales</label>
+            <div class="filter-group" style="border-color: #4682B4;"> <h3>Dispositivos</h3>
+                <div class="dropdown-content" id="dispositivos-dropdown">
+                    <label><input type="checkbox" value="Drones"> Drones</label>
+                    <label><input type="checkbox" value="RFID"> RFID</label>
+                    <label><input type="checkbox" value="Collares"> Collares</label>
+                    <label><input type="checkbox" value="Cámaras de visión"> Cámaras de visión</label>
+                    <label><input type="checkbox" value="IA"> IA</label>
+                    <label><input type="checkbox" value="Alimentadores automáticos"> Alimentadores automáticos</label>
+                    <label><input type="checkbox" value="Básculas"> Básculas</label>
+                    <label><input type="checkbox" value="Sensores acústicos"> Sensores acústicos</label>
+                    <label><input type="checkbox" value="Sensores de movimiento"> Sensores de movimiento</label>
+                    <label><input type="checkbox" value="Vallados virtuales"> Vallados virtuales</label>
                 </div>
             </div>
 
-            <div class="filter-group" id="group-estudio">
-                <label>Estudio</label>
-                <div class="options">
-                    <label><input type="checkbox" name="estudio" value="Comportamiento alimenticio"> Comportamiento alimenticio</label>
-                    <label><input type="checkbox" name="estudio" value="Comportamiento social"> Comportamiento social</label>
-                    <label><input type="checkbox" name="estudio" value="Manejo"> Manejo</label>
-                    <label><input type="checkbox" name="estudio" value="Nutrición"> Nutrición</label>
-                    <label><input type="checkbox" name="estudio" value="Salud"> Salud</label>
-                </div>
-            </div>
-            
-            <div class="filter-group" id="group-proyecto">
-                <label>Proyecto</label>
-                <div class="options">
-                    <label><input type="checkbox" name="proyecto" value="Project1"> Project1</label>
-                    <label><input type="checkbox" name="proyecto" value="Project2"> Project2</label>
-                    <label><input type="checkbox" name="proyecto" value="Project3"> Project3</label>
-                    <label><input type="checkbox" name="proyecto" value="Project4"> Project4</label>
+            <div class="filter-group" style="border-color: #32CD32;"> <h3>Estudio</h3>
+                <div class="dropdown-content" id="estudio-dropdown">
+                    <label><input type="checkbox" value="Comportamiento alimenticio"> Comportamiento alimenticio</label>
+                    <label><input type="checkbox" value="Comportamiento social"> Comportamiento social</label>
+                    <label><input type="checkbox" value="Manejo"> Manejo</label>
+                    <label><input type="checkbox" value="Nutrición"> Nutrición</label>
+                    <label><input type="checkbox" value="Salud"> Salud</label>
                 </div>
             </div>
 
-            <div class="filter-group" id="group-status">
-                <label>Status</label>
-                <div class="options">
-                    <label><input type="checkbox" name="status" value="IP"> IP</label>
-                    <label><input type="checkbox" name="status" value="Predoc"> Predoc</label>
-                    <label><input type="checkbox" name="status" value="Postdoc"> Postdoc</label>
-                    <label><input type="checkbox" name="status" value="Técnico"> Técnico</label>
+            <div class="filter-group" style="border-color: #DAA520;"> <h3>Proyectos</h3>
+                <div class="dropdown-content" id="proyectos-dropdown">
+                    <label><input type="checkbox" value="Project1"> Project1</label>
+                    <label><input type="checkbox" value="Project2"> Project2</label>
+                    <label><input type="checkbox" value="Project3"> Project3</label>
+                    <label><input type="checkbox" value="Project4"> Project4</label>
                 </div>
             </div>
 
-            <div class="filter-group" id="group-institucion">
-                <label>Institución</label>
-                <div class="options">
-                    <label><input type="checkbox" name="institucion" value="UPV"> UPV</label>
-                    <label><input type="checkbox" name="institucion" value="UdL"> UdL</label>
-                    <label><input type="checkbox" name="institucion" value="UCO"> UCO</label>
-                    <label><input type="checkbox" name="institucion" value="USAL"> USAL</label>
-                    <label><input type="checkbox" name="institucion" value="UAB"> UAB</label>
+            <div class="filter-group" style="border-color: #8A2BE2;"> <h3>Status</h3>
+                <div class="dropdown-content" id="status-dropdown">
+                    <label><input type="checkbox" value="IP"> IP</label>
+                    <label><input type="checkbox" value="Predoc"> Predoc</label>
+                    <label><input type="checkbox" value="Postdoc"> Postdoc</label>
+                    <label><input type="checkbox" value="Técnico"> Técnico</label>
                 </div>
             </div>
-        </div>
-        <div class="visualization-panel">
-            <svg id="network-graph"></svg>
-            <div id="detail-box">
-                <button id="close-detail-box">&times;</button>
-                <h3 id="detail-name"></h3>
-                <div id="detail-content"></div>
+
+            <div class="filter-group" style="border-color: #20B2AA;"> <h3>Institución</h3>
+                <div class="dropdown-content" id="institucion-dropdown">
+                    <label><input type="checkbox" value="UPV"> UPV</label>
+                    <label><input type="checkbox" value="UdL"> UdL</label>
+                    <label><input type="checkbox" value="UCO"> UCO</label>
+                    <label><input type="checkbox" value="USAL"> USAL</label>
+                    <label><input type="checkbox" value="UAB"> UAB</label>
+                </div>
             </div>
+        </aside>
+
+        <main class="main-content">
+            <div id="network-visualization">
+                </div>
+        </main>
+    </div>
+
+    <div id="person-details-popup" class="popup">
+        <div class="popup-content">
+            <span class="close-button">&times;</span>
+            <h3 id="popup-person-name"></h3>
+            <p><strong>Especie:</strong> <span id="popup-especie"></span></p>
+            <p><strong>Dispositivos:</strong> <span id="popup-dispositivo"></span></p>
+            <p><strong>Estudio:</strong> <span id="popup-estudio"></span></p>
+            <p><strong>Proyectos:</strong> <span id="popup-proyecto"></span></p>
+            <p><strong>Status:</strong> <span id="popup-status"></span></p>
+            <p><strong>Institución:</strong> <span id="popup-institucion"></span></p>
         </div>
     </div>
 
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="script.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script> <script src="script.js"></script>
 </body>
 </html>
