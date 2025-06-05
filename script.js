@@ -19,12 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 15, nombre: 'Raquel D.', especie: ['Avícola'], dispositivo: ['Drones', 'Sensores acústicos'], estudio: ['Manejo'], proyecto: ['Project4'], status: 'IP', institucion: 'UAB' }
     ];
 
-    const colors = {
-        'IP': '#d62728', 'Postdoc': '#ff7f0e', 'Predoc': '#2ca02c', 'Técnico': '#1f77b4'
+    const categoryMap = {
+        'especie': 'Especie', 'dispositivo': 'Dispositivos', 'estudio': 'Estudios',
+        'proyecto': 'Proyectos', 'status': 'Status', 'institucion': 'Institución'
     };
+
+    const colors = { 'IP': '#d62728', 'Postdoc': '#ff7f0e', 'Predoc': '#2ca02c', 'Técnico': '#1f77b4' };
     const institutionColors = d3.scaleOrdinal(d3.schemeCategory10);
 
-    // --- CONFIGURACIÓN DE D3.js ---
+    // --- ELEMENTOS DEL DOM ---
+    const detailBox = document.getElementById('detail-box');
+    const detailName = document.getElementById('detail-name');
+    const detailContent = document.getElementById('detail-content');
+    const closeDetailBoxBtn = document.getElementById('close-detail-box');
+
     const svg = d3.select("#network-graph");
     const width = svg.node().getBoundingClientRect().width;
     const height = svg.node().getBoundingClientRect().height;
@@ -37,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let link = svg.append("g").attr("class", "links").selectAll("line");
     let node = svg.append("g").attr("class", "nodes").selectAll("g.node");
 
-    function getSelectedFilters() {
+    function getSelectedFilters() { /* ... (sin cambios) ... */
         const selected = {};
         document.querySelectorAll('.filter-group').forEach(group => {
             const category = group.id.replace('group-', '');
@@ -46,10 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return selected;
     }
 
-    function updateGraph() {
+    function updateGraph() { /* ... (sin cambios en la lógica de filtrado) ... */
         const filters = getSelectedFilters();
         const noFiltersApplied = Object.values(filters).every(arr => arr.length === 0);
-
         let filteredPeople = noFiltersApplied ? allPeople : allPeople.filter(person => {
             return Object.entries(filters).some(([category, values]) => {
                 if (values.length === 0) return false;
@@ -59,41 +66,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         const nodes = filteredPeople.map(p => ({...p}));
-        
         const links = [];
         if (nodes.length > 1) {
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
-                    const p1 = nodes[i];
-                    const p2 = nodes[j];
-                    const commonFields = Object.keys(p1).filter(key => key !== 'id' && key !== 'nombre').filter(key => {
+                    const p1 = nodes[i]; const p2 = nodes[j];
+                    const commonFields = Object.keys(categoryMap).filter(key => {
                         const v1 = Array.isArray(p1[key]) ? p1[key] : [p1[key]];
                         const v2 = Array.isArray(p2[key]) ? p2[key] : [p2[key]];
                         return v1.some(item => v2.includes(item));
                     });
-                    if (commonFields.length > 0) {
-                        links.push({ source: p1.id, target: p2.id, weight: commonFields.length });
-                    }
+                    if (commonFields.length > 0) links.push({ source: p1.id, target: p2.id, weight: commonFields.length });
                 }
             }
         }
         
         const institutionGroups = d3.group(nodes, d => d.institucion);
         simulation.force("link").links(links).distance(d => 150 - d.weight * 15);
-        
-        // --- Lógica de Nodos Satélite ---
-        institutionGroups.forEach((group, inst) => {
+        institutionGroups.forEach((group) => {
             const ips = group.filter(p => p.status === 'IP');
             if (ips.length > 0) {
-                const ipCenter = { x: 0, y: 0 };
-                ips.forEach(ip => { ipCenter.x += ip.x || (width/2); ipCenter.y += ip.y || (height/2); });
-                ipCenter.x /= ips.length;
-                ipCenter.y /= ips.length;
-
                 group.forEach(person => {
                     if (person.status !== 'IP') {
-                        const ipToLink = ips[0]; // Link to the first IP for force
-                        links.push({source: person.id, target: ipToLink.id, isSatellite: true});
+                        links.push({source: person.id, target: ips[0].id, isSatellite: true});
                     }
                 });
             }
@@ -112,8 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
         node = node.data(nodes, d => d.id);
         node.exit().remove();
 
-        const nodeEnter = node.enter().append("g").attr("class", "node").call(drag(simulation));
-        
+        const nodeEnter = node.enter().append("g").attr("class", "node")
+            .call(drag(simulation))
+            .on("click", showDetails); // <-- AÑADIDO: Evento de clic en el nodo
+
         nodeEnter.append("circle")
             .attr("r", d => (d.status !== 'IP' && institutionGroups.get(d.institucion)?.some(p => p.status === 'IP')) ? 12 : 18)
             .attr("fill", d => colors[d.status] || '#ccc')
@@ -131,27 +128,57 @@ document.addEventListener('DOMContentLoaded', () => {
              .attr("fill", d => colors[d.status] || '#ccc');
 
         simulation.alpha(1).restart();
+        hideDetails(); // Ocultar detalles al actualizar el filtro
+    }
+    
+    // --- FUNCIONES PARA EL RECUADRO DE DETALLES ---
+    function showDetails(event, d) {
+        event.stopPropagation(); // Evita que el clic se propague al SVG y cierre el panel
+        detailName.textContent = d.nombre;
+        detailContent.innerHTML = ''; // Limpiar contenido anterior
+
+        for (const [key, title] of Object.entries(categoryMap)) {
+            const values = Array.isArray(d[key]) ? d[key] : [d[key]];
+            if (values && values.length > 0) {
+                const titleEl = document.createElement('h4');
+                titleEl.textContent = title;
+                detailContent.appendChild(titleEl);
+
+                const listEl = document.createElement('ul');
+                values.forEach(val => {
+                    const itemEl = document.createElement('li');
+                    itemEl.textContent = val;
+                    listEl.appendChild(itemEl);
+                });
+                detailContent.appendChild(listEl);
+            }
+        }
+        detailBox.classList.add('visible');
     }
 
-    function ticked() {
-        link
-            .attr("x1", d => d.source.x)
-            .attr("y1", d => d.source.y)
-            .attr("x2", d => d.target.x)
-            .attr("y2", d => d.target.y);
-        node.attr("transform", d => `translate(${d.x},${d.y})`);
+    function hideDetails() {
+        detailBox.classList.remove('visible');
     }
 
-    function drag(simulation) {
+    function ticked() { /* ... (sin cambios) ... */
+        link.attr("x1", d=>d.source.x).attr("y1", d=>d.source.y).attr("x2", d=>d.target.x).attr("y2", d=>d.target.y);
+        node.attr("transform", d=>`translate(${d.x},${d.y})`);
+    }
+
+    function drag(simulation) { /* ... (sin cambios) ... */
         function dragstarted(event, d) { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }
         function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
-        function dragended(event, d) { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }
+        function dragended(event, d) { if (!event.active) simulation.alphaTarget(0); if (!event.sourceEvent.ctrlKey) { d.fx = null; d.fy = null; } }
         return d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended);
     }
-
+    
+    // --- EVENT LISTENERS ---
     document.querySelectorAll('.filter-panel input[type="checkbox"]').forEach(checkbox => {
         checkbox.addEventListener('change', updateGraph);
     });
 
-    updateGraph(); // Carga inicial de la visualización
+    closeDetailBoxBtn.addEventListener('click', hideDetails);
+    svg.on('click', hideDetails); // Cierra el panel si se hace clic en el fondo
+
+    updateGraph(); // Carga inicial
 });
