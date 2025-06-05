@@ -1,0 +1,88 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    height: 100%;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.filter-panel {
+    width: 280px;
+    background-color: #ffffff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+}
+
+.filter-panel h2 {
+    margin-top: 0;
+    color: #000;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 10px;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid;
+    border-radius: 8px;
+}
+
+.filter-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+}
+
+.options label {
+    font-weight: normal;
+    margin-bottom: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.options input {
+    margin-right: 8px;
+}
+
+/* Colores de bordes para cada campo */
+#group-especie { border-color: #4285F4; } /* Azul */
+#group-dispositivo { border-color: #DB4437; } /* Rojo */
+#group-estudio { border-color: #F4B400; } /* Amarillo */
+#group-proyecto { border-color: #0F9D58; } /* Verde */
+#group-status { border-color: #9C27B0; } /* Morado */
+#group-institucion { border-color: #FF5722; } /* Naranja */
+
+
+.visualization-panel {
+    flex-grow: 1;
+    position: relative;
+}
+
+#network-graph {
+    width: 100%;
+    height: 100%;
+}
+
+.node text {
+    pointer-events: none;
+    font-size: 12px;
+    fill: #000;
+    font-weight: bold;
+    text-anchor: middle;
+    transform: translateY(-16px);
+}
